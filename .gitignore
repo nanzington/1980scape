@@ -1,0 +1,9 @@
+.vs/
+obj/
+bin/
+build/
+packages/
+Properties/
+tools/
+dependencies/
+*.vdf

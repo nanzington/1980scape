@@ -1,9 +1,9 @@
 ﻿using SadConsole;
 using SadRogue.Primitives; 
 using Console = SadConsole.Console;
-using ElectricDreams.UI; 
+using _1980scape.UI; 
 
-namespace ElectricDreams {
+namespace _1980scape {
     class GameLoop {
         public const int GameWidth = 150;
         public const int GameHeight = 50; 

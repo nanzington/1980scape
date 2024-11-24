@@ -2,17 +2,18 @@
 using SadRogue.Primitives;
 using System;
 using System.Linq; 
-using ElectricDreams;
+using _1980scape;
 using Console = SadConsole.Console;
 using Key = SadConsole.Input.Keys;
-using ElectricDreams.Dreams.LofiHollow;
+using _1980scape.DataTypes;
 using SadConsole.Input;
 using Newtonsoft.Json;
+using System.Runtime.InteropServices;
 
-namespace ElectricDreams.UI {
-    public class UI_LofiHollow : InstantUI {
-        public LHWorld World;
-        public LHPlayer Player;
+namespace _1980scape.UI {
+    public class UI_GameWindow : InstantUI {
+        public World World;
+        public Player Player;
 
         public Console Sidebar;
         public Console Minimap;
@@ -21,19 +22,19 @@ namespace ElectricDreams.UI {
         public Console DefaultTileDisp;
         public Console GlyphCon;
 
-        public Dictionary<string, LHSkill> Skills = new();
+        public Dictionary<string, Skill> Skills = new();
 
         public string DisplayingTab = "Inventory";
         public string TypingField = "";
-        public LHTile PaintingTile = new();
+        public Tile PaintingTile = new();
         public string PaintString = "";
         public Point LastTileChanged = new Point(-1, -1);
 
-        public Dictionary<string, LHTile> TileLibrary = new();
+        public Dictionary<string, Tile> TileLibrary = new();
 
-        public List<LHLogEntry> MessageLog = new();
+        public List<LogEntry> MessageLog = new();
 
-        public UI_LofiHollow(int width, int height, string winTitle = "") : base(width, height, "LofiHollow", winTitle) {  
+        public UI_GameWindow(int width, int height, string winTitle = "") : base(width, height, "GameWindow", winTitle) {  
             Con = new SadConsole.Console(new CellSurface(47, 47), GameLoop.SquareFont);
             Con.Font = GameLoop.SquareFont;
 
@@ -120,7 +121,7 @@ namespace ElectricDreams.UI {
                         Player.Skills = new();
 
                     int line = 0;
-                    foreach (KeyValuePair<string, LHSkill> kv in Player.Skills) {
+                    foreach (KeyValuePair<string, Skill> kv in Player.Skills) {
                         Sidebar.Print(1, 13 + (2 * line), kv.Value.Name);
                         Sidebar.Print(15, 13 + (2 * line), "|", Color.DarkSlateGray);
                         Sidebar.Print(17, 13 + (2 * line), "Lv" + kv.Value.Level);
@@ -146,7 +147,7 @@ namespace ElectricDreams.UI {
             if (DisplayingTab == "Dev Map") {
 
                 if (World != null && Player != null) {
-                    LHMap? current = World.TryGetMap(Player.Position);
+                    Map? current = World.TryGetMap(Player.Position);
 
                     if (current != null) {
                         Sidebar.PrintStringField(1, 13, "Map Name: ", ref current.MapName, ref TypingField, "mapName");
@@ -158,19 +159,23 @@ namespace ElectricDreams.UI {
                         foreach (var kv in TileLibrary) {
                             Sidebar.Print(1, line, "|");
                             Sidebar.PrintClickable(3, line, new ColoredString("*", Color.Crimson, Color.Black), () => { current.DefaultTile = kv.Key; });
-                            Sidebar.PrintClickable(5, line, new ColoredString(kv.Key, PaintString == kv.Key ? Color.Green : Color.White, Color.Black), () => { 
+                            Sidebar.PrintClickable(5, line, new ColoredString(kv.Key, PaintString == kv.Key ? Color.Green : Color.White, Color.Black), () => {
                                 PaintString = kv.Key;
 
                                 if (TileLibrary.ContainsKey(PaintString))
                                     PaintingTile = Helper.Clone(TileLibrary[PaintString]);
                             });
                             line++;
-                        } 
+                        }
+
+                        Sidebar.PrintClickable(62, 39, "SAVE", (string a) => { SaveCurrentWorldAsDefault(); }, "");
 
                         if (delete != "" && TileLibrary.ContainsKey(delete)) {
                             TileLibrary.Remove(delete);
                             delete = "";
                         }
+
+                        Sidebar.Print(1, 5, Marshal.SizeOf(World).ToString());
                     }
                 }
             }
@@ -180,7 +185,7 @@ namespace ElectricDreams.UI {
                 GlyphCon.IsVisible = true;
                 DefaultTileDisp.IsVisible = true;
                 if (World != null && Player != null) {
-                    LHMap? current = World.TryGetMap(Player.Position);
+                    Map? current = World.TryGetMap(Player.Position);
 
                     if (current != null) {
                         if (PaintingTile.Name == null)
@@ -259,14 +264,14 @@ namespace ElectricDreams.UI {
             bool FoundMap = false;
 
             if (World != null && Player != null) {
-                LHMap? current = World.TryGetMap(Player.Position);
+                Map? current = World.TryGetMap(Player.Position);
 
                 if (current != null) { 
                     FoundMap = true;
                     Win.Print(1, 1, current.MapName.Align(HorizontalAlignment.Center, 80));
 
                     if (mouseOn) {
-                        if (TileAt(current, mousePos) is LHTile hover) { 
+                        if (TileAt(current, mousePos) is Tile hover) { 
                             if (hover.GatherSpot == null) {
                                 if (hover.ExamineText != "") {
                                     Con.Print(1, 0, "Examine " + hover.Name);
@@ -281,7 +286,7 @@ namespace ElectricDreams.UI {
                                 }
                             }
                         }
-                        else if (ResolveTile(current.DefaultTile) is LHTile hoverDef) {
+                        else if (ResolveTile(current.DefaultTile) is Tile hoverDef) {
                             Con.Print(1, 0, hoverDef.Name);
                         }
                     }
@@ -289,15 +294,15 @@ namespace ElectricDreams.UI {
 
                     if (current.DefaultTile != null && current.DefaultTile != "") {
                         if (TileLibrary.ContainsKey(current.DefaultTile)) {
-                            LHTile def = Helper.Clone(TileLibrary[current.DefaultTile]);
+                            Tile def = Helper.Clone(TileLibrary[current.DefaultTile]);
                             Con.Fill(new Rectangle(1, 1, Con.Width - 2, Con.Height - 2), def.GetColor(), Color.Black, def.glyph);
                         }
                     } 
 
-                    LHTile errorTile = new LHTile() { colR = 255, glyph = 'X', Name = "ERROR" };
+                    Tile errorTile = new Tile() { colR = 255, glyph = 'X', Name = "ERROR" };
                     foreach (var kv in current.Tiles) { 
                         if (TileLibrary.ContainsKey(kv.Value)) {
-                            LHTile tile = TileLibrary[kv.Value];
+                            Tile tile = TileLibrary[kv.Value];
                             Con.Print(kv.Key.X + 1, kv.Key.Y + 1, tile.GetAppearance());
                         }
                         //Con.Print(kv.Key.X + 1, kv.Key.Y + 1, kv.Value.GetAppearance());
@@ -329,7 +334,7 @@ namespace ElectricDreams.UI {
                         } 
                     } else {
                         if (mouseOn && GameHost.Instance.Mouse.LeftClicked) { 
-                            if (TileAt(current, mousePos) is LHTile hover) { 
+                            if (TileAt(current, mousePos) is Tile hover) { 
                                 if (hover.GatherSpot == null) {
                                     if (hover.ExamineText != "") {
                                         AddMessage(hover.ExamineText);
@@ -347,7 +352,7 @@ namespace ElectricDreams.UI {
                                     }
                                 } 
                             }
-                            else if (ResolveTile(current.DefaultTile) is LHTile hoverDef) {
+                            else if (ResolveTile(current.DefaultTile) is Tile hoverDef) {
                                 if (hoverDef.GatherSpot == null) {
                                     if (hoverDef.ExamineText != "") {
                                         AddMessage(hoverDef.ExamineText);
@@ -402,7 +407,7 @@ namespace ElectricDreams.UI {
 
             if (DisplayingTab == "Dev Map") {
                 if (World != null && Player != null) {
-                    LHMap? current = World.TryGetMap(Player.Position);
+                    Map? current = World.TryGetMap(Player.Position);
 
                     if (current != null) {
                         Dictionary<Point, string> temp = new();
@@ -470,7 +475,7 @@ namespace ElectricDreams.UI {
             Skills.Add("Crafting", new("Crafting"));
             Skills.Add("Runecrafting", new("Runecrafting"));
 
-            foreach (KeyValuePair<string, LHSkill> skill in Skills) {
+            foreach (KeyValuePair<string, Skill> skill in Skills) {
                 if (!Player.Skills.ContainsKey(skill.Key)) {
                     Player.Skills.Add(skill.Key, Helper.Clone(skill.Value));
                 }
@@ -483,7 +488,7 @@ namespace ElectricDreams.UI {
 
                 foreach (string fileName in tileFiles) {
                     string json = File.ReadAllText(fileName);
-                    LHTile item = JsonConvert.DeserializeObject<LHTile>(json);
+                    Tile item = JsonConvert.DeserializeObject<Tile>(json);
                     TileLibrary.Add(item.Name, item);
                 }
             }
@@ -501,8 +506,13 @@ namespace ElectricDreams.UI {
                 Helper.SerializeToFile(kv.Value, "./data/tiles/" + kv.Key + ".json");
             }
 
-            foreach (var kv in World.Overworld) {
-                Helper.SerializeToFileCompressed(kv.Value, "./data/maps/Overworld/" + kv.Key + ".json");
+            foreach (var kv in World.Atlas) {
+                if (!Directory.Exists("./data/maps/" + kv.Key))
+                    Directory.CreateDirectory("./data/maps/" + kv.Key);
+
+                foreach (var kv2 in kv.Value) { 
+                    Helper.SerializeToFile(kv2.Value, "./data/maps/" + kv.Key + "/" + kv2.Key + ".json");
+                } 
             }
 
            //Helper.SerializeToFile(World, "./data/lofihollow/lhWorld.json");
@@ -510,8 +520,50 @@ namespace ElectricDreams.UI {
 
         public void LoadDefaultWorld() {
             if (File.Exists("./data/World.json")) {
-                World = Helper.DeserializeFromFile<LHWorld>("./data/World.json"); 
+                World = Helper.DeserializeFromFile<World>("./data/World.json"); 
             }
+             
+            if (Directory.Exists("./data/maps/")) {
+                string[] dirs = Directory.GetDirectories("./data/maps/"); 
+
+                foreach (var dir in dirs) {
+                    string trim = dir.Split("/")[^1];
+
+                    if (!World.Atlas.ContainsKey(trim))
+                        World.Atlas.Add(trim, new());
+
+                    string[] maps = Directory.GetFiles(dir);
+
+                    foreach (var map in maps) {
+                        string trimPos = map.Split("/")[^1].Split("\\")[^1];
+                        trimPos = trimPos.Remove(trimPos.Length - 5);
+
+                        string[] coords = trimPos.Trim('(').Trim(')').Split(",");
+
+                        int X = int.Parse(coords[0]);
+                        int Y = int.Parse(coords[1]);
+
+                        World.Atlas[trim].Add(new Point(X, Y), Helper.DeserializeFromFile<Map>(map));  
+                    } 
+                }
+            }
+            
+
+            /*
+            if (Directory.Exists("./data/maps/")) {
+                string[] dirs = Directory.GetDirectories("./data/maps/");
+                foreach (var dir in dirs) {
+                    World.Atlas.Add()
+                }
+
+                string[] itemFiles = Directory.GetFiles("./data/moves/");
+
+                foreach (string fileName in itemFiles) {
+                    string json = File.ReadAllText(fileName);
+                    Move item = JsonConvert.DeserializeObject<Move>(json);
+                    moveLibrary.Add(item.FullName(), item);
+                }
+            }  */
         }
 
         public void AddMessage(string msg) {
@@ -530,14 +582,14 @@ namespace ElectricDreams.UI {
             }
         }
 
-        public LHTile? TileAt(LHMap map, Point pos) {
+        public Tile? TileAt(Map map, Point pos) {
             if (map.Tiles.ContainsKey(pos)) {
                 return ResolveTile(map.Tiles[pos]);
             }
             return null;
         }
 
-        public LHTile? ResolveTile(string name) {
+        public Tile? ResolveTile(string name) {
             if (name != null) {
                 if (TileLibrary.ContainsKey(name))
                     return TileLibrary[name];
@@ -547,7 +599,7 @@ namespace ElectricDreams.UI {
 
         public void TryMove(int dx, int dy) {
             if (World != null && Player != null) {
-                LHMap? current = World.TryGetMap(Player.Position);
+                Map? current = World.TryGetMap(Player.Position);
 
                 if (current != null) {
                     int nx = Player.Position.X + dx;

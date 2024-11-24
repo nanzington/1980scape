@@ -5,12 +5,12 @@ using SadRogue.Primitives;
 using System.ComponentModel;
 using System.Globalization;
 using System.IO.Compression;
-using System.Text; 
+using System.Text;
 using System.Text.RegularExpressions;
 using Console = SadConsole.Console;
 using Rectangle = SadRogue.Primitives.Rectangle;
 
-namespace ElectricDreams {
+namespace _1980scape {
     public static class Helper {
         public static bool ProcessedClick = false;
         public static double CursorTicked = 0;
@@ -78,7 +78,21 @@ namespace ElectricDreams {
             if (GameHost.Instance.Keyboard.IsKeyDown(Keys.LeftControl) || GameHost.Instance.Keyboard.IsKeyDown(Keys.RightControl))
                 return true;
             return false;
-        } 
+        }
+
+        public static bool ScrolledUp() {
+            if (GameHost.Instance.Mouse.ScrollWheelValueChange < 0) {
+                return true;
+            }
+            return false;
+        }
+
+        public static bool ScrolledDown() {
+            if (GameHost.Instance.Mouse.ScrollWheelValueChange > 0) {
+                return true;
+            }
+            return false;
+        }
 
         public static T Clone<T>(this T source) {
             if (Object.ReferenceEquals(source, null)) {
@@ -90,7 +104,29 @@ namespace ElectricDreams {
             TypeDescriptor.AddAttributes(typeof(Point), new TypeConverterAttribute(typeof(PointConverter)));
 
             return JsonConvert.DeserializeObject<T>(JsonConvert.SerializeObject(source, serializeSettings), deserializeSettings);
-        } 
+        }
+
+        public static void PrintCombinedLetters(this Console con, int X, int Y, string text, Color col) {
+            int firstChar = 1;
+            int secondChar = 1;
+
+            if (text[0] >= 'A' && text[0] <= 'Z') {
+                firstChar = 1024 + (text[0] - 'A');
+            }
+            else if (text[0] >= 'a' && text[0] <= 'z') {
+                firstChar = 1088 + (text[0] - 'a');
+            }
+
+            if (text[1] >= 'A' && text[1] <= 'Z') {
+                secondChar = 1056 + (text[1] - 'A');
+            }
+            else if (text[1] >= 'a' && text[1] <= 'z') {
+                secondChar = 1120 + (text[1] - 'a');
+            }
+
+            con.Print(X, Y, firstChar.AsString(), col);
+            con.SetDecorator(X, Y, 1, new CellDecorator(col, secondChar, Mirror.None));
+        }
 
         public static void DrawBox(Console con, int LeftX, int TopY, int w, int h, int r = 255, int g = 255, int b = 255, int mode = 0) {
             int LeftXin = LeftX + 1;
@@ -99,7 +135,7 @@ namespace ElectricDreams {
             int BottomYin = TopY + h;
             int BottomY = TopY + h + 1;
             int RightX = LeftX + w + 1;
-             
+
             Color fg = new Color(r, g, b);
 
             if (mode == 0) {
@@ -109,9 +145,10 @@ namespace ElectricDreams {
                 con.DrawLine(new Point(RightX, TopYin), new Point(RightX, BottomYin), 321, fg);
                 con.Print(LeftX, BottomY, 322.AsString(), fg);
                 con.Print(RightX, BottomY, 323.AsString(), fg);
-                con.Print(LeftX, TopY, 324.AsString(), fg); 
+                con.Print(LeftX, TopY, 324.AsString(), fg);
                 con.Print(RightX, TopY, 325.AsString(), fg);
-            } else if (mode == 1) {
+            }
+            else if (mode == 1) {
                 con.DrawLine(new Point(LeftXin, TopY), new Point(RightXin, TopY), 190, fg);
                 con.DrawLine(new Point(LeftXin, BottomY), new Point(RightXin, BottomY), 190, fg);
                 con.DrawLine(new Point(LeftX, TopYin), new Point(LeftX, BottomYin), 191, fg);
@@ -121,7 +158,36 @@ namespace ElectricDreams {
                 con.Print(LeftX, BottomY, 186.AsString(), fg);
                 con.Print(RightX, TopY, 189.AsString(), fg);
             }
-        }  
+        }
+
+        public static string Italicize(this string instance) {
+            string newStr = "";
+
+            for (int i = 0; i < instance.Length; i++) {
+                if ((instance[i] >= 'A' && instance[i] <= 'Z') || (instance[i] >= 'a' && instance[i] <= 'z') || (instance[i] >= '0' && instance[i] <= '9')) {
+                    newStr += (instance[i] + 799).AsString();
+                }
+                else {
+                    newStr += instance[i];
+                }
+            }
+
+            return newStr;
+        }
+
+        public static void Shuffle<T>(this Stack<T> stack) {
+            var values = stack.ToArray();
+            stack.Clear();
+            foreach (var value in values.OrderBy(x => GameLoop.rand.Next()))
+                stack.Push(value);
+        } 
+
+        public static T Pop<T>(this List<T> instance) {
+            T popped = instance[0];
+            instance.RemoveAt(0);
+            return popped;
+        }
+
 
         public static ColoredString ToColoredString(this List<Color> instance, string text) {
             ColoredString build = new();
@@ -135,7 +201,19 @@ namespace ElectricDreams {
 
         public static string AsString(this int instance) {
             return ((char)instance).ToString();
-        } 
+        }
+
+        public static void Shuffle<T>(this IList<T> list) {
+            int n = list.Count;
+            while (n > 1) {
+                n--;
+                int k = GameLoop.rand.Next(n + 1);
+                T value = list[k];
+                list[k] = list[n];
+                list[n] = value;
+            }
+        }
+
 
         public static ColoredString GetDarker(this ColoredString instance) {
 
@@ -144,7 +222,30 @@ namespace ElectricDreams {
             }
 
             return instance;
-        } 
+        }
+
+        public static ColoredString GetGrayscale(this ColoredString instance) {
+            for (int i = 0; i < instance.Length; i++) {
+                int colF = (int)Math.Floor((instance[i].Foreground.R + instance[i].Foreground.G + instance[i].Foreground.B) / 3f);
+                int colB = (int)Math.Floor((instance[i].Background.R + instance[i].Background.G + instance[i].Background.B) / 3f);
+                instance[i].Foreground = new Color(colF, colF, colF);
+                instance[i].Background = new Color(colB, colB, colB);
+            }
+
+            return instance;
+        }
+
+        public static ColoredString GetAlternating(this string instance, Color first, Color second) {
+            ColoredString output = new();
+            for (int i = 0; i < instance.Length; i++) {
+                if (i % 2 == 0)
+                    output += new ColoredString(instance[i].ToString(), first, Color.Black);
+                else
+                    output += new ColoredString(instance[i].ToString(), second, Color.Black);
+            }
+
+            return output;
+        }
 
         public static void Flip(this ref bool instance) {
             instance = !instance;
@@ -369,7 +470,7 @@ namespace ElectricDreams {
                 if (mousePos.X >= x && mousePos.X < x + length && mousePos.Y == y && mouseOn) {
                     OnClick(ID, arg);
                     ProcessedClick = true;
-                } 
+                }
             }
         }
 
@@ -392,7 +493,7 @@ namespace ElectricDreams {
                 if (mousePos.X >= x && mousePos.X < x + length && mousePos.Y == y) {
                     OnClick(ID, arg1, arg2);
                     ProcessedClick = true;
-                } 
+                }
             }
         }
 
@@ -415,7 +516,15 @@ namespace ElectricDreams {
                 }
             }
         } 
-         
+
+        public static bool VowelStart(string str) {
+            char[] vowels = { 'a', 'e', 'i', 'o', 'u' };
+
+            if (vowels.Contains(str[0]))
+                return true;
+            return false;
+        }
+
         public static void SerializeToFile(object value, string path, JsonSerializerSettings settings = null) {
             using StreamWriter output = new StreamWriter(path);
             TypeDescriptor.AddAttributes(typeof(Point), new TypeConverterAttribute(typeof(PointConverter)));
@@ -432,42 +541,67 @@ namespace ElectricDreams {
             return output;
         }
 
-        public static void SerializeToFileCompressed(object value, string path) {
-            File.WriteAllBytes(path, value.ToByteArray());
+        public static int PrintMultiLine(this Console instance, int x, int y, string str, int width, int colR = 255, int colG = 255, int colB = 255) {
+            List<string> words = str.Split(" ").ToList();
+            Color col = new Color(colR, colG, colB);
+
+            int cX = x;
+            int cY = y;
+
+            foreach (string word in words) {
+                if (cX + word.Length + 1 < width) {
+                    instance.Print(cX, cY, word + " ", col, Color.Black);
+                    cX += word.Length + 1;
+                }
+                else {
+                    cX = x;
+                    cY++;
+                    instance.Print(cX, cY, word + " ", col, Color.Black);
+                    cX += word.Length + 1;
+                }
+            }
+
+            return cY;
         }
 
-        public static T DeserializeFromFileCompressed<T>(string path) { 
-            return File.ReadAllBytes(path).FromByteArray<T>();
+        public static void PrintMultilineClickable(this SadConsole.Console instance, int x, int y, int height, ColoredString str, Action<string> OnClick, string ID) {
+            Point mousePos = new MouseScreenObjectState(instance, GameHost.Instance.Mouse).CellPosition;
+
+            if (mousePos.X >= x && mousePos.X < x + str.Length && mousePos.Y >= y && mousePos.Y < y + height) {
+                str.GetDarker();
+                for (int i = 0; i < height; i++) {
+                    instance.Print(x, y + i, str);
+                }
+            }
+            else {
+                for (int i = 0; i < height; i++) {
+                    instance.Print(x, y + i, str);
+                }
+            }
+
+            if (GameHost.Instance.Mouse.LeftClicked) {
+                if (mousePos.X >= x && mousePos.X < x + str.Length && mousePos.Y >= y && mousePos.Y < y + height) {
+                    OnClick(ID);
+                }
+            }
+        }
+
+        public static List<Color> GradientList(int stepsOneWay, Color first, Color second) {
+            float perStep = 1f / ((float)stepsOneWay);
+
+            List<Color> steps = new();
+            for (int i = 0; i < stepsOneWay; i++) {
+                steps.Add(Color.Lerp(first, second, (float)i * perStep));
+            }
+
+            for (int i = stepsOneWay; i > 0; i--) {
+                steps.Add(Color.Lerp(first, second, (float)i * perStep));
+            }
+
+            return steps;
         } 
+    }
 
-        public static byte[] ToByteArray(this object instance, JsonSerializerSettings settings = null) {
-            MemoryStream stream = new();
-            using (var writer = new StreamWriter(stream)) {
-                var serializer = JsonSerializer.CreateDefault(settings);
-                serializer.Serialize(writer, instance);
-                writer.Close();
-                stream.Close();
-            }
-
-            return stream.ToArray();
-        }
-
-        public static T FromByteArray<T>(this byte[] input, JsonSerializerSettings settings = null) {
-            MemoryStream stream = new(input);
-            T output;  
-
-            using (var reader = new StreamReader(stream))
-            using (var jsonReader = new JsonTextReader(reader)) {
-                var serializer = JsonSerializer.CreateDefault(settings);
-                
-                output = serializer.Deserialize<T>(jsonReader);
-                stream.Close();
-                reader.Close();
-            }
-
-            return output;
-        }
-    } 
 
     public class PointConverter : TypeConverter {
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
@@ -484,5 +618,5 @@ namespace ElectricDreams {
             return new Point(int.Parse(parts[0]), int.Parse(parts[1]));
         }
     }
-    
+
 }

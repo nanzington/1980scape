@@ -1,13 +1,13 @@
-﻿using ElectricDreams.UI;
+﻿using _1980scape.UI;
 using SadRogue.Primitives; 
 
-namespace ElectricDreams.Dreams.LofiHollow {
-    public class LHMap {
+namespace _1980scape.DataTypes {
+    public class Map {
         public string MapName; 
         public Dictionary<Point, string> Tiles;
         public string DefaultTile;
 
-        public LHMap() {
+        public Map() {
             MapName = "";
             Tiles = new();
             DefaultTile = "";

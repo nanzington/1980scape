@@ -1,8 +1,8 @@
 ﻿using SadConsole;
 using SadRogue.Primitives; 
 
-namespace ElectricDreams.Dreams.LofiHollow {
-    public class LHTile {
+namespace _1980scape.DataTypes {
+    public class Tile {
         public string Name = "";
         public int colR;
         public int colG;

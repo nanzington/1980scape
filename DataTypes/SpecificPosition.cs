@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ElectricDreams.Dreams.LofiHollow {
+namespace _1980scape.DataTypes {
     public class SpecificPosition {
         public int X;
         public int Y;

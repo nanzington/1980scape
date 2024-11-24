@@ -4,13 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ElectricDreams.Dreams.LofiHollow {
-    public class LHSkill {
+namespace _1980scape.DataTypes {
+    public class Skill {
         public string Name = "";
         public int Level = 1;
         public int Exp = 0;
 
-        public LHSkill(string n) {
+        public Skill(string n) {
             Name = n;
         }
 

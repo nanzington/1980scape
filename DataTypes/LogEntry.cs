@@ -1,11 +1,11 @@
 ﻿using SadConsole; 
 
-namespace ElectricDreams.Dreams.LofiHollow {
-    public class LHLogEntry {
+namespace _1980scape.DataTypes {
+    public class LogEntry {
         public ColoredString Message = new("");
         public int Count = 1;
 
-        public LHLogEntry(ColoredString msg) {
+        public LogEntry(ColoredString msg) {
             Message = msg;
         }
     }

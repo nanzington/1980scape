@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ElectricDreams.Dreams.LofiHollow {
+namespace _1980scape.DataTypes {
     public class GatheringTile {
         public string Skill = "";
         public int Level = 1;

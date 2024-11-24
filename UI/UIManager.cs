@@ -3,12 +3,12 @@ using SadConsole.UI;
 using SadRogue.Primitives;
 using Key = SadConsole.Input.Keys;
 
-namespace ElectricDreams.UI {
+namespace _1980scape.UI {
     public class UIManager : ScreenObject {
         public SadConsole.UI.Colors? CustomColors;
         public Dictionary<string, InstantUI> Interfaces = new();
 
-        public UI_LofiHollow lofiHollow;
+        public UI_GameWindow lofiHollow;
 
         public UIManager() {
             IsVisible = true;
@@ -32,7 +32,7 @@ namespace ElectricDreams.UI {
 
         public void Init() {
             SetupCustomColors(); 
-            lofiHollow = new UI_LofiHollow(150, 50);
+            lofiHollow = new UI_GameWindow(150, 50);
         }
 
 

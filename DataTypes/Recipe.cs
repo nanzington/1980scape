@@ -4,8 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ElectricDreams.Dreams.LofiHollow {
-    public class LHRecipe {
+namespace _1980scape.DataTypes {
+    public class Recipe {
         public string FirstItem = "";
         public int FirstQty = 1;
         public string SecondItem = "";

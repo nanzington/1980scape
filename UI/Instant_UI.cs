@@ -3,7 +3,7 @@ using SadConsole.Input;
 using SadConsole.UI;
 using SadRogue.Primitives;
 
-namespace ElectricDreams.UI {
+namespace _1980scape.UI {
     public class InstantUI {
         public SadConsole.Console Con;
         public Window Win;

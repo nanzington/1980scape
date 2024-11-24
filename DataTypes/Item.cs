@@ -1,8 +1,8 @@
 ﻿using SadConsole;
 using SadRogue.Primitives;
 
-namespace ElectricDreams.Dreams.LofiHollow {
-    public class LHItem {
+namespace _1980scape.DataTypes {
+    public class Item {
         public string Name = "";
         public string ExamineText = "";
         public string ID = "";
