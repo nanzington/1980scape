@@ -173,9 +173,7 @@ namespace _1980scape.UI {
                         if (delete != "" && TileLibrary.ContainsKey(delete)) {
                             TileLibrary.Remove(delete);
                             delete = "";
-                        }
-
-                        Sidebar.Print(1, 5, Marshal.SizeOf(World).ToString());
+                        } 
                     }
                 }
             }
