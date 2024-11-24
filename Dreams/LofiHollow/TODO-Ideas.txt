@@ -1,0 +1,33 @@
+﻿Difficulty Options:
+- No GE, only items you've acquired via drop/shop, normal
+- Permadeath
+- Time doesn't move? Time is constantly set to any choice of time
+- No sleep required
+- Build anywhere
+- Waystones from anywhere, waystones from waystones, no waystones
+- Can use shops
+- 1 HP Max (nightmare mode)
+- Tile locked (XP or GP)
+- Chunk locked (XP or GP or objectives)
+- Goldman (pay GP to level skills)
+- Bank: none, anywhere, normal
+- Can't heal from foods, can't heal at all
+- EXP scaling? 1x, 2x, 5x, 10x, half, quarter
+- Drop rate scaling? 1x, 2x, 5x, 10x, half, quarter
+- Randomized drop tables
+- Bounty Hunter mode (have to kill X of a monster before moving on, next monster is random/higher level/user choice)
+- Have to level skills equally
+- Can't gain exp in certain skills
+
+Needed for Progress:
+- Map maker tool
+- Item editor
+- Monster/NPC creator and editor
+- Dialogue/Quest editor tool
+
+Middle Ideas:
+- Agility obstacles that teleport you to target position when interacted with? Some way to do two-way
+- Recipes lists for stations (like furnaces, ovens. optionally show all recipes, default to available with curr inven)
+
+Distant Ideas:
+- Clue scrolls

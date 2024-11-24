@@ -1,0 +1,10 @@
+{
+  "Name": "Grass",
+  "colR": 0,
+  "colG": 100,
+  "colB": 0,
+  "glyph": 34,
+  "Walkable": true,
+  "GatherSpot": null,
+  "ExamineText": ""
+}

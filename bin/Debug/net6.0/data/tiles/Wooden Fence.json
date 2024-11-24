@@ -1,0 +1,10 @@
+{
+  "Name": "Wooden Fence",
+  "colR": 100,
+  "colG": 50,
+  "colB": 0,
+  "glyph": 353,
+  "Walkable": false,
+  "GatherSpot": null,
+  "ExamineText": ""
+}

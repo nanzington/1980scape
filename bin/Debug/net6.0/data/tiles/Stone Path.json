@@ -1,0 +1,10 @@
+{
+  "Name": "Stone Path",
+  "colR": 100,
+  "colG": 100,
+  "colB": 100,
+  "glyph": 265,
+  "Walkable": true,
+  "GatherSpot": null,
+  "ExamineText": ""
+}

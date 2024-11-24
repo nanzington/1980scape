@@ -1,0 +1,10 @@
+{
+  "Name": "Fountain",
+  "colR": 0,
+  "colG": 100,
+  "colB": 200,
+  "glyph": 234,
+  "Walkable": false,
+  "GatherSpot": null,
+  "ExamineText": "Everyone needs a water feature."
+}

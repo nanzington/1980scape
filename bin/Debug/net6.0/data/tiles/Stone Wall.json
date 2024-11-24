@@ -1,0 +1,10 @@
+{
+  "Name": "Stone Wall",
+  "colR": 100,
+  "colG": 100,
+  "colB": 100,
+  "glyph": 35,
+  "Walkable": false,
+  "GatherSpot": null,
+  "ExamineText": ""
+}
